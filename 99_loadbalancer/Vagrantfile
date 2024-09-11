@@ -1,0 +1,65 @@
+Vagrant.configure("2") do |config|
+
+    # Webサーバー1
+    config.vm.define "web1" do |web1|
+      web1.vm.box = "hashicorp/bionic64"
+      web1.vm.network "private_network", ip: "192.168.33.10"
+      web1.vm.provision :shell, inline: <<-SHELL
+        sudo apt-get update
+        sudo apt-get install -y apache2
+        sudo systemctl start apache2
+      SHELL
+    end
+  
+    # Webサーバー2
+    config.vm.define "web2" do |web2|
+      web2.vm.box = "hashicorp/bionic64"
+      web2.vm.network "private_network", ip: "192.168.33.11"
+      web2.vm.provision :shell, inline: <<-SHELL
+        sudo apt-get update
+        sudo apt-get install -y apache2
+        sudo systemctl start apache2
+      SHELL
+    end
+  
+    # ロードバランサー
+    config.vm.define "loadbalancer" do |lb|
+      lb.vm.box = "hashicorp/bionic64"
+      lb.vm.network "private_network", ip: "192.168.33.12"
+      lb.vm.network "forwarded_port", guest: 80, host: 8080
+      lb.vm.provision :shell, inline: <<-SHELL
+        sudo apt-get update
+        sudo apt-get install -y haproxy
+        sudo bash -c 'cat <<EOL > /etc/haproxy/haproxy.cfg
+        global
+            log /dev/log local0
+            log /dev/log local1 notice
+            maxconn 2000
+            user haproxy
+            group haproxy
+  
+        defaults
+            log     global
+            mode    http
+            option  httplog
+            option  dontlognull
+            retries 3
+            option redispatch
+            timeout connect 5s
+            timeout client  50s
+            timeout server  50s
+  
+        frontend http-in
+            bind *:80
+            default_backend webservers
+  
+        backend webservers
+            balance roundrobin
+            server web1 192.168.33.10:80 check
+            server web2 192.168.33.11:80 check
+        EOL'
+        sudo systemctl restart haproxy
+      SHELL
+    end
+  end
+  
