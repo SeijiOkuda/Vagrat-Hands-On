@@ -1,0 +1,29 @@
+# Vagrantの仮想マシンの状態やログファイル
+.vagrant/
+*.log
+
+# VirtualBox の設定ファイル
+.vbox/
+.vbox-prev
+
+# Vagrantが生成する一時ファイル
+*.box
+*.vagrant
+
+# Vagrantのプロビジョニングスクリプトの中で生成されるキャッシュや一時ファイル
+*.tmp
+*.swp
+
+# OS 特有のファイル
+.DS_Store
+Thumbs.db
+
+# システムファイルや環境設定
+*.sublime-project
+*.sublime-workspace
+.idea/
+*.iml
+
+# IDEやエディタの設定ファイル
+*.vscode/
+*.code-workspace
