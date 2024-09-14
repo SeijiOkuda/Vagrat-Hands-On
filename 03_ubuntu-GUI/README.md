@@ -5,7 +5,7 @@
     vagrant up
     ```
     * リモートデスクトップでアクセス  
-    ```
+    
     * VMの削除
     ```sh
     vagrant destroy
